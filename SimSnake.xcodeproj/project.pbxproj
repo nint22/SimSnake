@@ -1,0 +1,261 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0653A83819031A6300D272EA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0653A83719031A6300D272EA /* main.cpp */; };
+		0653A84119031A7C00D272EA /* SimSnake.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0653A84019031A7C00D272EA /* SimSnake.cpp */; };
+		06D8795D1905920500E3E1B3 /* ScanFillSnake.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0653A8571904CEBB00D272EA /* ScanFillSnake.txt */; };
+		06D8795E1905920600E3E1B3 /* GoRight.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06D879571904F05E00E3E1B3 /* GoRight.txt */; };
+		06D879631905A5BF00E3E1B3 /* EdgeWalk.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06D879611905A5B400E3E1B3 /* EdgeWalk.txt */; };
+		06D879641905A5C300E3E1B3 /* LeftRightCycle.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06D879621905A5B400E3E1B3 /* LeftRightCycle.txt */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0653A83219031A6300D272EA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				06D8795D1905920500E3E1B3 /* ScanFillSnake.txt in CopyFiles */,
+				06D879641905A5C300E3E1B3 /* LeftRightCycle.txt in CopyFiles */,
+				06D8795E1905920600E3E1B3 /* GoRight.txt in CopyFiles */,
+				06D879631905A5BF00E3E1B3 /* EdgeWalk.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0653A83419031A6300D272EA /* SimSnake */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SimSnake; sourceTree = BUILT_PRODUCTS_DIR; };
+		0653A83719031A6300D272EA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		0653A84019031A7C00D272EA /* SimSnake.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimSnake.cpp; sourceTree = "<group>"; };
+		0653A84219031B1600D272EA /* SimSnake.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimSnake.h; sourceTree = "<group>"; };
+		0653A8571904CEBB00D272EA /* ScanFillSnake.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ScanFillSnake.txt; path = SimSnake/ScanFillSnake.txt; sourceTree = "<group>"; };
+		06D879571904F05E00E3E1B3 /* GoRight.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = GoRight.txt; path = SimSnake/GoRight.txt; sourceTree = "<group>"; };
+		06D879611905A5B400E3E1B3 /* EdgeWalk.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = EdgeWalk.txt; path = SimSnake/EdgeWalk.txt; sourceTree = "<group>"; };
+		06D879621905A5B400E3E1B3 /* LeftRightCycle.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LeftRightCycle.txt; path = SimSnake/LeftRightCycle.txt; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0653A83119031A6300D272EA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0653A82B19031A6300D272EA = {
+			isa = PBXGroup;
+			children = (
+				06D879581904F08500E3E1B3 /* Snakes */,
+				0653A83619031A6300D272EA /* SimSnake */,
+				0653A83519031A6300D272EA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0653A83519031A6300D272EA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0653A83419031A6300D272EA /* SimSnake */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0653A83619031A6300D272EA /* SimSnake */ = {
+			isa = PBXGroup;
+			children = (
+				0653A83719031A6300D272EA /* main.cpp */,
+				0653A84019031A7C00D272EA /* SimSnake.cpp */,
+				0653A84219031B1600D272EA /* SimSnake.h */,
+			);
+			path = SimSnake;
+			sourceTree = "<group>";
+		};
+		06D879581904F08500E3E1B3 /* Snakes */ = {
+			isa = PBXGroup;
+			children = (
+				0653A8571904CEBB00D272EA /* ScanFillSnake.txt */,
+				06D879611905A5B400E3E1B3 /* EdgeWalk.txt */,
+				06D879621905A5B400E3E1B3 /* LeftRightCycle.txt */,
+				06D879571904F05E00E3E1B3 /* GoRight.txt */,
+			);
+			name = Snakes;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0653A83319031A6300D272EA /* SimSnake */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0653A83D19031A6300D272EA /* Build configuration list for PBXNativeTarget "SimSnake" */;
+			buildPhases = (
+				0653A83019031A6300D272EA /* Sources */,
+				0653A83119031A6300D272EA /* Frameworks */,
+				0653A83219031A6300D272EA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimSnake;
+			productName = SimSnake;
+			productReference = 0653A83419031A6300D272EA /* SimSnake */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0653A82C19031A6300D272EA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = CoreS2;
+			};
+			buildConfigurationList = 0653A82F19031A6300D272EA /* Build configuration list for PBXProject "SimSnake" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0653A82B19031A6300D272EA;
+			productRefGroup = 0653A83519031A6300D272EA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0653A83319031A6300D272EA /* SimSnake */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0653A83019031A6300D272EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0653A84119031A7C00D272EA /* SimSnake.cpp in Sources */,
+				0653A83819031A6300D272EA /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0653A83B19031A6300D272EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0653A83C19031A6300D272EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0653A83E19031A6300D272EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0653A83F19031A6300D272EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0653A82F19031A6300D272EA /* Build configuration list for PBXProject "SimSnake" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0653A83B19031A6300D272EA /* Debug */,
+				0653A83C19031A6300D272EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0653A83D19031A6300D272EA /* Build configuration list for PBXNativeTarget "SimSnake" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0653A83E19031A6300D272EA /* Debug */,
+				0653A83F19031A6300D272EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0653A82C19031A6300D272EA /* Project object */;
+}

@@ -1,0 +1,38 @@
+; Keeps going right, and then switches direction when an edge is hit
+; Still working!
+
+0   ; This is used as the state: 0 to go right, 1 to go left
+
+; If state is 0 and we're on the edge
+
+ZeroA ZeroB
+ReadA   ; a = state, b = 0
+NE      ; if our state is not zero
+IfJmp 5
+
+BSize
+SetB 1
+Sub
+Swap    ; b = worldSize-1
+
+ZeroA
+ReadA   ; a = state
+
+; Change state
+
+SetB 1  ; 4 instructions to a = ((a + 1) % 2)
+Add
+SetB 2
+Mod
+
+; Move left on 0, right on 1
+ZeroA ZeroB
+ReadA   ; a = state
+NE      ; if state is *not* 0 (e.g. go left)
+IfJmp 3
+GoLeft
+Jmp 2
+GoRight
+
+; Re-start program (jump to top)
+Jmp -200

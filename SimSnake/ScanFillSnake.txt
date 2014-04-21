@@ -1,0 +1,99 @@
+; This file implements a scan-line filling solution
+; Just fills from the top to bottom but leaves the left column empty
+; to move back up from
+; Todo: implement label/goto
+
+; Raw data:
+0       ; Snake state: 0 means go right, 1 means go left, 2 means go up
+0       ; Helpful constant, boardsize - 1
+
+; 0. Initialize constants
+BSize   ; a = boardSize
+SetB 1  ; b = 1
+Sub     ; a = boardSize - 1
+Swap    ; a:1, b:boardSize-1
+SetA 1  ; Not needed, but this is our dest. address
+Write   ; mem[a] = b
+
+; 1. Transition change based on state and position
+
+; If top-left corner, go right (state 0)
+GetPos  ; a = x
+ZeroB   ; b = 0
+NE      ; Is x on first column?
+IfJmp 9 ; Skep to next test
+GetPos
+Swap    ; a = y
+ZeroB   ; b = 0
+NE      ; Is y on first row?
+IfJmp 4
+ZeroA ZeroB
+Write; State change to seeking right
+
+; If bottom-left corner, go up (state 2)
+GetPos  ; a = x, b = y
+ZeroB   ; b = 0
+NE      ; Is x on first column
+IfJmp 11
+GetPos  ; a = x, b = y
+SetA 1
+ReadA   ; a = worldSize-1 (which is a constant, mem[1])
+IfJmp 6 ; If at edge, we need to go up)
+SetA 0
+SetB 2
+Write   ; State now 2 (going up)
+
+; If state 0 and on edge
+
+
+
+
+
+
+
+Equal   ; y == boardsize - 1 (edge)
+IfJmp 2
+ZeroA ZeroB
+Write; State change to seeking right
+
+
+; 2. If x is >= width, wrap around, else go right
+Swap    ; x is now in b
+BSize   ; load board size into a
+GTE     ; a = x >= width
+IfJmp 1 ; Jump past moving right
+GoRight
+
+
+
+Nop
+ZeroA
+ZeroB
+Board
+
+SetA
+SetB
+Swap
+ReadA
+ReadB
+Write
+Add
+Sub
+Mul
+Div
+Mod
+Equal
+NE
+LT
+GT
+LTE
+GTE
+And
+Or
+Not
+IfJmp
+Jmp
+GoUp
+GoDown
+GoLeft
+GoRight
