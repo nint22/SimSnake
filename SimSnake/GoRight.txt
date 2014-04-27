@@ -1,4 +1,5 @@
 ; Keeps going right, and then switches direction when an edge is hit
 
-GoRight
-Jmp -2
+Loop:
+    GoRight
+    Jmp Loop

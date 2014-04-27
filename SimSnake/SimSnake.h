@@ -47,9 +47,10 @@
 static const int cMemorySize = (1048576 / 4);
 
 // How many movements can happen before eating which will kill the snake
-static const int cMaxHunger = 20;
+// Can move through the entire board twice before being starved to death
+static const int cMaxHunger = 500; // Want to make them convert to optimal
 
-// Stalls after executing 9000 instructions with no movement=
+// Stalls after executing n-number of instructions with no movement
 static const int cStallCount = 10000;
 
 /*** Common Structures ***/
@@ -91,7 +92,6 @@ enum Instruction
     
     cInstruction_IfJmp,     // If a != 0, set InstructionPtr += b
     cInstruction_Jmp,       // InstructionPtr += a
-    cInstruction_SetJmp,    // InstructionPtr = a
     
     cInstruction_GoUp,      // Move snake head up
     cInstruction_GoDown,    // Down
@@ -132,7 +132,6 @@ static const char* InstructionNames[ cInstructionCount ] =
     "Not",
     "IfJmp",
     "Jmp",
-    "SetJmp",
     "GoUp",
     "GoDown",
     "GoLeft",
@@ -187,8 +186,8 @@ struct BoardPosition
 {
     BoardPosition() : x( 0 ), y( 0 ) { }
     BoardPosition( const BoardPosition& given ) { x = given.x; y = given.y; }
-    BoardPosition( int8_t _x, int8_t _y ) { x = _x; y = _y; }
-    int8_t x, y;
+    BoardPosition( int _x, int _y ) { x = _x; y = _y; }
+    int x, y;
 };
 
 // A board game that simulates a gene
@@ -213,8 +212,8 @@ public:
     int GetBoardSize() const { return m_boardSize; }
     
     // Get back the state of the board
-    BoardObject GetBoard( int8_t x, int8_t y ) const;
-    void SetBoard( int8_t x, int8_t y, const BoardObject& boardObj );
+    BoardObject GetBoard( int x, int y ) const;
+    void SetBoard( int x, int y, const BoardObject& boardObj );
     
     // Executes one instruction, returns true on movement of snake
     // Any errors are given through "errorOut"
@@ -224,8 +223,16 @@ public:
     const std::vector< BoardPosition >& GetSnake() const { return m_snake; }
     const std::vector< BoardPosition >& GetPellets() const { return m_pellets; }
     
+    // Exposed fitness values; smaller is better
+    int GetFitness() const;
+    
+    int GetInstructionCount() const { return int( m_instructionCount ); }
+    int GetMovementCount() const { return int( m_movementCount ); }
+    int GetPelletCount() const { return int( m_pelletCount ); }
+    
 protected:
     
+    // Randomly place in the board
     void AddPellet();
     
     // Snake wants to move in a given direction
@@ -238,7 +245,8 @@ private:
     int32_t* m_memory;
     BoardObject* m_boardObjects;
     int32_t m_instructionPtr;
-    uint8_t m_boardSize;
+    
+    int m_boardSize;
     int m_registerA, m_registerB;
     
     // Did system halt, e.g. error?
@@ -248,11 +256,13 @@ private:
     std::vector< BoardPosition > m_snake;
     std::vector< BoardPosition > m_pellets;
     
-    // Number of snake movements
-    uint32_t m_stepCount;
+    // Fitness measurements
+    int m_instructionCount;
+    int m_movementCount;
+    int m_pelletCount;
     
     // How many times the snake has moved since last eating
-    uint32_t m_hungerCount;
+    int m_hungerCount;
 };
 
 /*** Simulation Controller ***/
@@ -275,10 +285,30 @@ public:
     const int GetActiveGeneIndex() const { return m_activeGeneIndex; }
     const int GetGenerationCount() const { return m_generationCount; }
     
+    // Get board stats, useful for high-level progress testing
+    void GetStats( int& longestLivedMovementCount, int& mostPelletsEatenCount ) const;
+    
+    struct GeneFitnessPair
+    {
+        GeneFitnessPair( int geneIndex, int fitnessValue )
+        : m_geneIndex( geneIndex ), m_fitnessValue( fitnessValue )
+        { }
+        
+        GeneFitnessPair( const GeneFitnessPair& given )
+        : m_geneIndex( given.m_geneIndex ), m_fitnessValue( given.m_fitnessValue )
+        { }
+        
+        int m_geneIndex;
+        int m_fitnessValue;
+    };
+    
 protected:
     
     // Core tweak / editable feature of this simulation
     void FitAndBreed();
+    
+    // Takes gene A, mixes with gene B, saved to gene replacement index
+    void Breed( int geneIndexA, int geneIndexB, int geneReplacementIndex );
     
 private:
     
@@ -286,11 +316,18 @@ private:
     int m_boardSize;
     BoardSimulation* m_activeBoard;
     
+    // List of gene ranks (lower value is better); stored in index order, defaults to int_max if not yet measured
+    std::vector< GeneFitnessPair > m_geneFitness;
+    
     // Active gene, which goes ahead
     int m_activeGeneIndex;
     int m_stepCount;
     int m_generationCount;
     int m_genePoolSize;
+    
+    // Tracking
+    int m_maxMovementCount;
+    int m_maxPelletEattenCount;
     
 };
 

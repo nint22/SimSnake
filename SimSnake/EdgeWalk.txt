@@ -1,2 +1,133 @@
 ; Keep walking around the edge of the map
-; Todo
+; Note that we use memory 100 and 101 for temp registers
+
+; Initialize state register to 1 (go right)
+SetA 100
+SetB 1
+Write
+
+Start:
+
+;; Top row
+
+; mem[100] = (x < 31)
+GetPos
+SetB 31
+LT
+SetB 100
+Swap
+Write
+
+; mem[101] = (x == 0)
+GetPos
+Swap
+SetB 0
+Equal
+SetB 101
+Swap
+Write
+
+; If x < 31 and y == 0, move right
+SetA 100
+ReadA
+SetB 101
+ReadB
+And
+IfJmp MoveRight
+
+;; Right column
+
+; mem[100] = (x == 31)
+GetPos
+SetB 31
+Equal
+SetB 100
+Swap
+Write
+
+; mem[101] = (y < 31)
+GetPos
+Swap
+SetB 31
+LT
+SetB 101
+Swap
+Write
+
+; If x == 31 and y < 31, move down
+SetA 100
+ReadA
+SetB 101
+ReadB
+And
+IfJmp MoveDown
+
+;; Bottom row
+
+; mem[100] = (x > 0)
+GetPos
+SetB 0
+GT
+SetB 100
+Swap
+Write
+
+; mem[101] = (y == 31)
+GetPos
+Swap
+SetB 31
+Equal
+SetB 101
+Swap
+Write
+
+; If x > 0 and y == 31, move left
+SetA 100
+ReadA
+SetB 101
+ReadB
+And
+IfJmp MoveLeft
+
+;; Left column
+
+; mem[100] = (x == 0)
+GetPos
+SetB 0
+Equal
+SetB 100
+Swap
+Write
+
+; mem[101] = (y > 0)
+GetPos
+Swap
+SetB 0
+GT
+SetB 101
+Swap
+Write
+
+; If x == 0 and y > 0, move up
+SetA 100
+ReadA
+SetB 101
+ReadB
+And
+IfJmp MoveUp
+
+
+;; Move and restart program commands
+
+MoveLeft: GoLeft
+Jmp Start
+
+MoveRight: GoRight
+Jmp Start
+
+MoveUp: GoUp
+Jmp Start
+
+MoveDown: GoDown
+Jmp Start
+

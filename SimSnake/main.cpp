@@ -7,57 +7,30 @@
 //
 
 #include <stdio.h>
+#include <unistd.h>
+
 #include "SimSnake.h"
 
-// Draw the given came on-screen
-void DrawGame( const BoardSimulation& activeBoard )
+//#define __ConsoleBuild__
+#ifdef __ConsoleBuild__
+
+// Does the file exist?
+bool DoesFileExist( const char* fileName )
 {
-    const int boardSize = activeBoard.GetBoardSize();
-    for( int y = -1; y <= boardSize; y++ )
+    bool doesExist = false;
+    FILE* fHandle = fopen( fileName, "r" );
+    if( fHandle != NULL )
     {
-        if( y == -1 || y == boardSize )
-        {
-            // Draw edge
-            for( int x = -1; x <= boardSize; x++ )
-            {
-                printf( "-" );
-            }
-        }
-        else
-        {
-            for( int x = -1; x <= boardSize; x++ )
-            {
-                // Draw edge
-                if( x == -1 || x == boardSize )
-                {
-                    printf( "|" );
-                }
-                else
-                {
-                    BoardSimulation::BoardObject boardObject = activeBoard.GetBoard( x, y );
-                    if( boardObject == BoardSimulation::cBoardObject_Pellet )
-                    {
-                        printf( "x" );
-                    }
-                    else if( boardObject == BoardSimulation::cBoardObject_Snake )
-                    {
-                        printf( "#" );
-                    }
-                    else
-                    {
-                        printf(" ");
-                    }
-                }
-            }
-        }
-        
-        printf( "\n" );
+        doesExist = true;
+        fclose( fHandle );
     }
+    return doesExist;
 }
 
 // Converts all hand-crafted scripts to Gene0, Gene1, etc..
-void ExportGenes()
+void ExportGenes( int genePoolCount )
 {
+    // List of "seeding" programs (in assembly-like syntax)
     const int cFileCount = 4;
     const char* cFileNames[ cFileCount ] =
     {
@@ -67,23 +40,28 @@ void ExportGenes()
         "EdgeWalk.txt",
     };
     
-    for( int i = 0; i < cFileCount; i++ )
+    for( int i = 0; i < genePoolCount; i++ )
     {
-        const char* scriptFileName = cFileNames[ i ];
+        const char* scriptFileName = cFileNames[ i % cFileCount ];
         char outFileName[ 512 ];
         sprintf( outFileName, "Gene%d", i );
+        
+        // Only write out if the file does not yet exist
+        if( DoesFileExist( outFileName ) )
+        {
+            continue;
+        }
         
         Gene gene;
         if( !LoadTxtGene( scriptFileName, gene ) )
         {
             printf( "Unable to load script \"%s\"!\n", scriptFileName );
+            continue;
         }
-        else
+        
+        if( !WriteGene( outFileName, gene ) )
         {
-            if( !WriteGene( outFileName, gene ) )
-            {
-                printf( "Unable to serialize script \"%s\"!\n", outFileName );
-            }
+            printf( "Unable to serialize script \"%s\"!\n", outFileName );
         }
     }
     
@@ -92,12 +70,11 @@ void ExportGenes()
 // Main application entry point
 int main(int argc, const char * argv[])
 {
-    // Config!
     const int cBoardSize = 32;
     const int cGenePoolCount = 64;
     
-    // Convert our assembly-like genes to a set of valid genes
-    ExportGenes();
+    // Seed the world, but only if the files do not yet exist
+    ExportGenes( cGenePoolCount );
     
     // Begin a simple simulation
     SimSnake simSnake( cBoardSize, cGenePoolCount );
@@ -105,10 +82,11 @@ int main(int argc, const char * argv[])
     while( true )
     {
         // Print world to console
-        printf( "--------------------------------------\n" );
-        printf( "  Gene #%d, Generation Count #%d\n", simSnake.GetActiveGeneIndex(), simSnake.GetGenerationCount() );
-        printf( "--------------------------------------\n" );
-        DrawGame( simSnake.GetActiveBoard() );
+        int mostMoveCount, mostPelletsCount;
+        simSnake.GetStats( mostMoveCount, mostPelletsCount );
+        
+        printf( "Gene #%d, Generation Count #%d\n", simSnake.GetActiveGeneIndex(), simSnake.GetGenerationCount() );
+        printf( "Most snake moves: %d, most pellets eaten: %d\n", mostMoveCount, mostPelletsCount );
         
         // Updates until a snake dies *or* moves a peg
         simSnake.Update();
@@ -116,4 +94,6 @@ int main(int argc, const char * argv[])
     
     return 0;
 }
+
+#endif //__ConsoleBuild__
 

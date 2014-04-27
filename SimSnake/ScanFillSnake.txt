@@ -1,99 +1,93 @@
-; This file implements a scan-line filling solution
-; Just fills from the top to bottom but leaves the left column empty
-; to move back up from
-; Todo: implement label/goto
+; This AI moves side-to-side, going from the top row to the
+; bottom row, then using the left-most column to go back up
 
-; Raw data:
-0       ; Snake state: 0 means go right, 1 means go left, 2 means go up
-0       ; Helpful constant, boardsize - 1
+; Start of program: get position, jump to correct row function
+Start:
 
-; 0. Initialize constants
-BSize   ; a = boardSize
-SetB 1  ; b = 1
-Sub     ; a = boardSize - 1
-Swap    ; a:1, b:boardSize-1
-SetA 1  ; Not needed, but this is our dest. address
-Write   ; mem[a] = b
+    ; If x is non-zero, move normally
+    GetPos  ; a = x, b = y
+    SetB 0
+    NE
+    IfJmp NormalMovement
 
-; 1. Transition change based on state and position
+    ; If y is 0, move right, else move up
+    GetPos  ; a = x, b = y
+    Swap    ; a = y, b = x
+    SetB 0
+    Equal
+    IfJmp MoveRight
+    Jmp MoveUp
 
-; If top-left corner, go right (state 0)
-GetPos  ; a = x
-ZeroB   ; b = 0
-NE      ; Is x on first column?
-IfJmp 9 ; Skep to next test
-GetPos
-Swap    ; a = y
-ZeroB   ; b = 0
-NE      ; Is y on first row?
-IfJmp 4
-ZeroA ZeroB
-Write; State change to seeking right
+NormalMovement:
 
-; If bottom-left corner, go up (state 2)
-GetPos  ; a = x, b = y
-ZeroB   ; b = 0
-NE      ; Is x on first column
-IfJmp 11
-GetPos  ; a = x, b = y
-SetA 1
-ReadA   ; a = worldSize-1 (which is a constant, mem[1])
-IfJmp 6 ; If at edge, we need to go up)
-SetA 0
-SetB 2
-Write   ; State now 2 (going up)
+    ; Save in register a if the y position is even (0) or odd (1)
+    GetPos  ; a = x, b = y
+    Swap    ; a = y, b = x
+    SetB 2  ; b = 2
+    Mod     ; a %= 2, which means "y % 2"
 
-; If state 0 and on edge
+    ; Branch on which row we're in
+    SetB 0
+    Equal
+    IfJmp EvenRow   ; If 0, goto EvenRow
+    Jmp OddRow      ; Else goto OddRow
 
+; Keeps moving right unless x = 31, else move down
+EvenRow:
 
+    GetPos
+    SetB 31
+    NE
+    IfJmp MoveRight
+    Jmp MoveDown
 
+; Keep moving left, unless x = 1, else move back
+; *but* if x == 1 and y == 31, we move ahead
+OddRow:
 
+    GetPos
+    SetB 1
+    Equal
+    SetB 500
+    Swap
+    Write ; We've saved "x == 1" at loc 500
 
+    GetPos
+    Swap
+    SetB 31
+    Equal
+    Swap
+    SetA 501
+    Write ; We've saved "y == 31" at loc 501
 
+    SetA 500
+    ReadA
+    SetB 501
+    ReadB
 
-Equal   ; y == boardsize - 1 (edge)
-IfJmp 2
-ZeroA ZeroB
-Write; State change to seeking right
+    ; If both are true, we must go left to get into the column
+    And
+    IfJmp MoveLeft
 
+    ; Else, if x == 1 go down, else go left
+    SetA 500
+    ReadA
+    SetB 1
+    Equal
+    IfJmp MoveDown
+    Jmp MoveLeft
 
-; 2. If x is >= width, wrap around, else go right
-Swap    ; x is now in b
-BSize   ; load board size into a
-GTE     ; a = x >= width
-IfJmp 1 ; Jump past moving right
-GoRight
+; Move and restart program
 
+    MoveLeft: GoLeft
+    Jmp Start
 
+    MoveRight: GoRight
+    Jmp Start
 
-Nop
-ZeroA
-ZeroB
-Board
+    MoveUp: GoUp
+    Jmp Start
 
-SetA
-SetB
-Swap
-ReadA
-ReadB
-Write
-Add
-Sub
-Mul
-Div
-Mod
-Equal
-NE
-LT
-GT
-LTE
-GTE
-And
-Or
-Not
-IfJmp
-Jmp
-GoUp
-GoDown
-GoLeft
-GoRight
+    MoveDown: GoDown
+    Jmp Start
+

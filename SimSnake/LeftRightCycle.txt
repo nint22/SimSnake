@@ -1,38 +1,57 @@
-; Keeps going right, and then switches direction when an edge is hit
-; Still working!
+; If x == 0, set mem[500] to 1 (go right state)
+; If x == 31, set mem[500] to 0 (go left state)
+; If mem[500] == 0, move left, else move right
 
-0   ; This is used as the state: 0 to go right, 1 to go left
+; Movement state variable is at register mem[500]
 
-; If state is 0 and we're on the edge
+; Default state
+SetA 500
+SetB 0
+Write
 
-ZeroA ZeroB
-ReadA   ; a = state, b = 0
-NE      ; if our state is not zero
-IfJmp 5
+; Main loop starting point
+Start:
 
-BSize
-SetB 1
-Sub
-Swap    ; b = worldSize-1
+    GetPos
+    SetB 0
+    Equal
+    IfJmp SetStateRight
+    
+    GetPos
+    SetB 31
+    Equal
+    IfJmp SetStateLeft
 
-ZeroA
-ReadA   ; a = state
+    SetA 500
+    ReadA
+    SetB 1
+    Equal
+    IfJmp MoveRight
+    Jmp MoveLeft
 
-; Change state
+SetStateRight:
 
-SetB 1  ; 4 instructions to a = ((a + 1) % 2)
-Add
-SetB 2
-Mod
+    GoRight
+    SetA 500
+    SetB 1
+    Write
+    Jmp Start
 
-; Move left on 0, right on 1
-ZeroA ZeroB
-ReadA   ; a = state
-NE      ; if state is *not* 0 (e.g. go left)
-IfJmp 3
-GoLeft
-Jmp 2
-GoRight
+SetStateLeft:
 
-; Re-start program (jump to top)
-Jmp -200
+    GoLeft
+    SetA 500
+    SetB 0
+    Write
+    Jmp Start
+
+MoveRight:
+    
+    GoRight
+    Jmp Start
+
+MoveLeft:
+    
+    GoLeft
+    Jmp Start
+    

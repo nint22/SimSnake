@@ -11,9 +11,47 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <ctype.h>
-
+#include <string>
+#include <map>
 
 /*** Helper Functions ***/
+
+namespace
+{
+    void LowerStdString( std::string& givenString )
+    {
+        const int strLen = int( givenString.length() );
+        for( int i = 0; i < strLen; i++ )
+        {
+            givenString.at( i ) = tolower( givenString.at( i ) );
+        }
+    }
+    
+    bool IsStdStringAlphaNum( const std::string& givenString )
+    {
+        const int strLen = int( givenString.length() );
+        for( int i = 0; i < strLen; i++ )
+        {
+            if( !isalnum( givenString.at( i ) ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    bool GeneFitnessSortFunc( const SimSnake::GeneFitnessPair& a, const SimSnake::GeneFitnessPair& b )
+    {
+        return a.m_fitnessValue < b.m_fitnessValue;
+    }
+    
+    void GetGeneName( int geneIndex, char* geneNameOut )
+    {
+        sprintf( geneNameOut, "Gene%d", geneIndex );
+    }
+}
+
 
 
 // Serialize to text file
@@ -26,6 +64,13 @@ bool WriteGene( const char* fileName, const Gene& gene )
         for( int i = 0; i < instructionCount; i++ )
         {
             fwrite( (void*)&gene[ i ], sizeof( Instruction ), 1, file );
+        }
+        
+        // Fill rest with random numbers
+        for( size_t i = instructionCount; i < (size_t)std::max( (int)instructionCount,  cMemorySize ); i++ )
+        {
+            int random = rand() % INT_MAX;
+            fwrite( (void*)&(random), sizeof( Instruction ), 1, file );
         }
         
         fclose( file );
@@ -81,6 +126,14 @@ bool LoadTxtGene( const char* fileName, Gene& gene )
     int tokenIndex = 0;
     char token[ cTokenLength ] = "\0";
     
+    // Map of labels (lower-cased keys) to integer address positions
+    std::map< std::string, int > labelAddresses;
+    std::map< std::string, int >::iterator labelAddressIterator;
+    
+    // Map of label instructions that need to be resolved; address location -> string to find
+    std::map< int, std::string > labelResolutions;
+    std::map< int, std::string >::iterator labelResolutionsIterator;
+    
     FILE* file = NULL;
     if( (file = fopen( fileName, "r" )) != NULL )
     {
@@ -114,24 +167,72 @@ bool LoadTxtGene( const char* fileName, Gene& gene )
                 int value = 0;
                 Instruction instruction;
                 
+                bool isHandled = false;
+                
                 // This is a token, convert as instruction or number
                 if( isalpha( token[0] ) && MapInstruction( token, instruction ) )
                 {
                     gene.push_back( int32_t(instruction) );
                     tokenIndex = 0;
+                    
+                    isHandled = true;
                 }
+                // Else, 32-bit signed integer
                 else if( sscanf( token, "%d", &value ) == 1 )
                 {
                     gene.push_back( int32_t(value) );
                     tokenIndex = 0;
+                    
+                    isHandled = true;
                 }
-                else
+                // Else, could be a label definition
+                else if( token[ tokenIndex - 1 ] == ':' )
+                {
+                    std::string tokenString = token;
+                    tokenString.erase( tokenString.end() - 1 );
+                    
+                    LowerStdString( tokenString );
+                    
+                    // Make sure it doesn't already exist
+                    labelAddressIterator = labelAddresses.find( tokenString );
+                    if( labelAddressIterator == labelAddresses.end() )
+                    {
+                        labelAddresses[ tokenString ] = int( gene.size() );
+                        isHandled = true;
+                    }
+                    else
+                    {
+                        printf( "Error: Redefinition of label \"%s\"\n", token );
+                    }
+                }
+                // Else, was the previous instruction a jump, and this is the target?
+                else if( gene.size() > 0 && ( gene.back() == cInstruction_IfJmp || gene.back() == cInstruction_Jmp ) )
+                {
+                    std::string tokenString = token;
+                    LowerStdString( tokenString );
+                    
+                    // Make sure this is a reasonable token
+                    if( IsStdStringAlphaNum( tokenString ) )
+                    {
+                        labelResolutions[ int( gene.size() ) ] = tokenString;
+                        gene.push_back( 0 );
+                        isHandled = true;
+                    }
+                    else
+                    {
+                        printf( "Error: Label \"%s\" is not a valid label name\n", token );
+                    }
+                }
+                
+                // Report not being able to read token
+                if( !isHandled )
                 {
                     // Parse error; log and continue
-                    printf( "Warning: Bad token read in \"%s\", token: \"%s\"\n", fileName, token );
-                    token[ 0 ] = '\0';
-                    tokenIndex = 0;
+                    printf( "Error: Bad token read in \"%s\", token: \"%s\" (Missing Jmp infront of label name?)\n", fileName, token );
                 }
+                
+                token[ 0 ] = '\0';
+                tokenIndex = 0;
             }
             // If visible, start of token
             else if( isgraph( nextChar ) )
@@ -151,9 +252,27 @@ bool LoadTxtGene( const char* fileName, Gene& gene )
             // Else, ignore char
         }
         
-        // All done!
+        // Map all label jumps to relative addresses
+        bool labelsLoaded = true;
+        for( labelResolutionsIterator = labelResolutions.begin(); labelResolutionsIterator != labelResolutions.end() && labelsLoaded; ++labelResolutionsIterator )
+        {
+            // Was this label ever defined?
+            labelAddressIterator = labelAddresses.find( labelResolutionsIterator->second );
+            if( labelAddressIterator == labelAddresses.end() )
+            {
+                printf( "Error: Was not able to find the jump label name \"%s\"\n", labelResolutionsIterator->second.c_str() );
+                labelsLoaded = false;
+            }
+            else
+            {
+                // Change the jump argument to a relative offsent
+                gene.at( labelResolutionsIterator->first ) = labelAddressIterator->second - labelResolutionsIterator->first + 1;
+            }
+        }
+        
+        // All done, though return goto-label matching errors
         fclose( file );
-        return true;
+        return labelsLoaded;
     }
     return false;
 }
@@ -184,7 +303,9 @@ BoardSimulation::BoardSimulation( int worldSize, const Gene& gene )
     , m_registerA( 0 )
     , m_registerB( 0 )
     , m_errorCode( cError_None )
-    , m_stepCount( 0 )
+    , m_instructionCount( 0 )
+    , m_movementCount( 0 )
+    , m_pelletCount( 0 )
     , m_hungerCount( 0 )
 {
     // Set all to zero, copy in gene
@@ -215,12 +336,12 @@ BoardSimulation::~BoardSimulation()
     delete[] m_boardObjects;
 }
 
-BoardSimulation::BoardObject BoardSimulation::GetBoard( int8_t x, int8_t y ) const
+BoardSimulation::BoardObject BoardSimulation::GetBoard( int x, int y ) const
 {
     return m_boardObjects[y * m_boardSize + x];
 }
 
-void BoardSimulation::SetBoard( int8_t x, int8_t y, const BoardSimulation::BoardObject& boardObj )
+void BoardSimulation::SetBoard( int x, int y, const BoardSimulation::BoardObject& boardObj )
 {
     m_boardObjects[y * m_boardSize + x] = boardObj;
 }
@@ -232,10 +353,8 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
         errorOut = m_errorCode;
         return false;
     }
-    else
-    {
-        errorOut = cError_None;
-    }
+    
+    m_instructionCount++;
     
     // Grab instruction
     Instruction op = (Instruction)m_memory[ m_instructionPtr ];
@@ -258,6 +377,13 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
         case cInstruction_ZeroB:
         {
             m_registerB = 0;
+            break;
+        }
+            
+        case cInstruction_GetPos:
+        {
+            m_registerA = m_snake.front().x;
+            m_registerB = m_snake.front().y;
             break;
         }
             
@@ -327,7 +453,7 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
         {
             if( m_registerA >= 0 && m_registerA < cMemorySize )
             {
-                m_memory[ m_registerA ] = m_registerA;
+                m_memory[ m_registerA ] = m_registerB;
             }
             else
             {
@@ -431,8 +557,13 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
         {
             if( m_registerA != 0 )
             {
-                m_instructionPtr += arg1;
+                m_instructionPtr += arg0;
                 jumped = true;
+            }
+            else
+            {
+                // Read pass the argument
+                m_instructionPtr++;
             }
             break;
         }
@@ -443,14 +574,7 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
             jumped = true;
             break;
         }
-            
-        case cInstruction_SetJmp:
-        {
-            m_instructionPtr = arg0;
-            jumped = true;
-            break;
-        }
-            
+        
         case cInstruction_GoUp:
         {
             errorOut = MoveSnake( cMove_Up );
@@ -493,21 +617,25 @@ bool BoardSimulation::UpdateSimulation( Error& errorOut )
     }
     
     // Check other error conditions
-    if( m_errorCode != cError_None )
+    if( m_instructionPtr < 0 || m_instructionPtr >= cMemorySize )
     {
-        if( m_instructionPtr < 0 || m_instructionPtr >= cMemorySize )
-        {
-            errorOut = cError_OutOfBounds;
-            return false;
-        }
-        else if( m_snake.size() >= m_boardSize * m_boardSize )
-        {
-            errorOut = cError_BoardFilled;
-            return false;
-        }
+        errorOut = cError_OutOfBounds;
+    }
+    else if( m_snake.size() >= m_boardSize * m_boardSize )
+    {
+        errorOut = cError_BoardFilled;
     }
     
+    // Save error state for future lookup
+    m_errorCode = errorOut;
+    
     return moved;
+}
+
+int BoardSimulation::GetFitness() const
+{
+    // What's best: low instructions, low movement, high pellet
+    return ( m_instructionCount / 1000 + m_movementCount ) - m_pelletCount * 100;
 }
 
 void BoardSimulation::AddPellet()
@@ -567,10 +695,14 @@ Error BoardSimulation::MoveSnake( const Move& move )
             if( m_pellets[ i ].x == head.x &&
                 m_pellets[ i ].y == head.y )
             {
+                m_pelletCount++;
                 m_pellets.erase( m_pellets.begin() + i );
                 break;
             }
         }
+        
+        // Add a new pellet
+        AddPellet();
     }
     
     // Moving ahead
@@ -593,6 +725,7 @@ Error BoardSimulation::MoveSnake( const Move& move )
     }
     
     // All done!
+    m_movementCount++;
     return cError_None;
 }
 
@@ -605,7 +738,15 @@ SimSnake::SimSnake( int boardSize, int genePoolCount )
     , m_stepCount( 0 )
     , m_generationCount( 0 )
     , m_genePoolSize( genePoolCount )
+    , m_maxMovementCount( 0 )
+    , m_maxPelletEattenCount( 0 )
 {
+    // Initialize all gene ranks to -1 (not yet measured)
+    for( int i = 0; i < m_genePoolSize; i++ )
+    {
+        m_geneFitness.push_back( GeneFitnessPair( i, INT_MAX ) );
+    }
+    
     // Load for first board game
     Gene firstGene;
     LoadGene( "Gene0", firstGene);
@@ -624,7 +765,7 @@ void SimSnake::Update()
     while( true )
     {
         // Update board
-        Error errorOut;
+        Error errorOut = cError_None;
         bool hasMoved = m_activeBoard->UpdateSimulation( errorOut );
         
         // Stall check
@@ -638,6 +779,11 @@ void SimSnake::Update()
         {
             printf( "Gene has died: \"%s\"\n", ErrorNames[ (int)errorOut ] );
             
+            // Save performance
+            m_geneFitness.at( m_activeGeneIndex ) = GeneFitnessPair( m_activeGeneIndex, m_activeBoard->GetFitness() );
+            m_maxMovementCount = std::max( m_maxMovementCount, m_activeBoard->GetMovementCount() );
+            m_maxPelletEattenCount = std::max( m_maxPelletEattenCount, m_activeBoard->GetPelletCount() );
+            
             // Update gene count; does a gene pool update if we're starting over the group
             m_activeGeneIndex = ( m_activeGeneIndex + 1 ) % m_genePoolSize;
             m_stepCount = 0;
@@ -650,7 +796,7 @@ void SimSnake::Update()
             
             // Load next gene
             char fileName[ 512 ];
-            sprintf( fileName, "Gene%d", m_activeGeneIndex );
+            GetGeneName( m_activeGeneIndex, fileName );
             
             // Stap to next gene
             Gene nextGene;
@@ -679,11 +825,118 @@ void SimSnake::Update()
     }
 }
 
+void SimSnake::GetStats( int& longestLivedMovementCount, int& mostPelletsEatenCount ) const
+{
+    longestLivedMovementCount = m_maxMovementCount;
+    mostPelletsEatenCount = m_maxPelletEattenCount;
+}
+
 void SimSnake::FitAndBreed()
 {
-    // Todo: sort based on gene scores
+    // Sort gene scores, lower is best; dead genes are ranked with int_max
+    std::sort( m_geneFitness.begin(), m_geneFitness.end(), GeneFitnessSortFunc );
+    const int cHalfPoolSize = m_genePoolSize / 2;
     
-    // Todo: breed top X with eachother, replacing rest
+    // Copy the top best genes into their new file names
+    std::vector< Gene > bestGenes;
+    for( int i = 0; i < cHalfPoolSize; i++ )
+    {
+        Gene gene;
+        int geneIndex = m_geneFitness.at( i ).m_geneIndex;
+        
+        char fileName[ 512 ];
+        GetGeneName( geneIndex, fileName );
+        
+        if( !LoadGene( fileName, gene ) )
+        {
+            printf( "Error: Unable to load the gene at index %d for re-sorting\n", geneIndex );
+        }
+        
+        bestGenes.push_back( gene );
+    }
     
-    // Todo: Mutate X number (mutate should be based on )
+    // Write out this list, nuking the original set
+    for( int i = 0; i < cHalfPoolSize; i++ )
+    {
+        char fileName[ 512 ];
+        GetGeneName( i, fileName );
+        WriteGene( fileName, bestGenes.at( i ) );
+    }
+    
+    // Top 50% replicate with the next ranked gene, replacing bottom 50%
+    for( int i = 0; i < cHalfPoolSize; i += 2 )
+    {
+        int geneIndex = m_geneFitness.at( i ).m_geneIndex;
+        
+        // Self-breeding results in mutation
+        int geneIndexA = geneIndex;
+        int geneIndexB = (geneIndex + 1) % m_genePoolSize;
+        
+        Breed( geneIndexA, geneIndexB, cHalfPoolSize + geneIndex );
+        Breed( geneIndexB, geneIndexA, cHalfPoolSize + geneIndex + 1 );
+    }
+    
+    printf( "Breeding and generatng a population\n" );
+    
+    // Reset array
+    for( int i = 0; i < m_genePoolSize; i++ )
+    {
+        m_geneFitness.at( i ) = GeneFitnessPair( i, 0 );
+    }
+}
+
+void SimSnake::Breed( int geneIndexA, int geneIndexB, int geneReplacementIndex )
+{
+    char fileName[ 512 ];
+    
+    // Load both genes; remember that the A gene will be dominant here
+    GetGeneName( geneIndexA, fileName );
+    Gene geneA;
+    LoadGene( fileName, geneA );
+    
+    GetGeneName( geneIndexB, fileName );
+    Gene geneB;
+    LoadGene( fileName, geneB );
+    
+    if( geneA.empty() || geneB.empty() )
+    {
+        printf( "Internal error: gene length inconsistency!\n" );
+        return;
+    }
+    
+    Gene childGene = geneB;
+    
+    // We cut up based on this division:
+    const int cSegmentCount = 128;
+    const int cSelectionLength = cMemorySize / cSegmentCount;
+    
+    // Swap up to three chunks at a time
+    const int cChunkCount = 5;
+    const int cChunkNum = (rand() % cChunkCount) + 1;
+    
+    // Shuffle genes from either self or given B gene
+    for( int chunk = 0; chunk < cChunkNum * 2; chunk++ )
+    {
+        // 2x because 0 - cSegmentCount is gene A, cSegmentCount - cSegmentCount * 2 is gene B
+        int sourceIndex = rand() % (cSegmentCount * 2);
+        int destIndex = rand() % cSegmentCount;
+        
+        // Swap the chunk's instructions
+        for( int i = 0; i < cSelectionLength; i++ )
+        {
+            Gene& srcGene = ( sourceIndex >= cSegmentCount ) ? geneA : geneB;
+            childGene.at( destIndex * cSelectionLength + i ) = srcGene.at( (sourceIndex % cSegmentCount) * cSelectionLength + i );
+        }
+    }
+    
+    // Mutate 0.01% of data
+    const int cMutationCount = int( float( cMemorySize ) * 0.0001f );
+    for( int i = 0; i < cMutationCount; i++ )
+    {
+        childGene.at( rand() % cMemorySize ) = int32_t(rand() % INT32_MAX);
+    }
+    
+    // Write out
+    GetGeneName( geneReplacementIndex, fileName );
+    WriteGene( fileName, childGene );
 }

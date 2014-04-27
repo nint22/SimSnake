@@ -7,14 +7,30 @@ screen, which is used as a screen-saver / desktop toy.
 
 Note that there are a few random implementations of snake AI code to get you started
 with. Those script files are written in assembly-like syntax, but without goto / label
-mechanisms.
+mechanisms. They're also used to "seed" the gene pool.
+
+Breeding happens after a round of ranking. The top half of the gene pool breeds with their
+next rank (i.e. rank 1 breeds with rank 2, etc.), replacing the bottom half genes. Gene
+breeding occurs by picking a main parent, cloning that data, then randomly swapping a small
+set of chunks between the copied gene and the second parent. A 0.01% mutation rate is
+introduced, where 0.01% of the data gets randomized.
+
+Building
+========
+
+You can either build the main.cpp file or ncurses.cpp file. The first compiles the
+application where it prints out all data and states to the console, while the second
+creates an ncurses window within your console and draws to it sans scrolling.
+
+Either "#define __ConsoleBuild__" at the start of main.cpp, or "#define __NCursesBuild__"
+at the start of ncurses.cpp By default, the ncurses version is built.
 
 Todo
 ====
 
-+ Add Linux and Windows support (this is an XCode / OSX project)
-+ Add fitness based off of efficiency (pellets ate, life duration, etc.)
-+ Add gene breeding and mutation code
++ Change language to a higher-level language, like BASIC, and breed by copying functions, not just memory chunks
++ Print simulation growht data: how much better the genes get over time...
++ Add back Linux and Windows support (this is an XCode / OSX project)
 
 License (MIT License)
 =====================

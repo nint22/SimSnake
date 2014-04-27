@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		0653A83819031A6300D272EA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0653A83719031A6300D272EA /* main.cpp */; };
 		0653A84119031A7C00D272EA /* SimSnake.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0653A84019031A7C00D272EA /* SimSnake.cpp */; };
+		06B8AA50190CE1A600DC76FE /* ncurses.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06B8AA4E190CE1A600DC76FE /* ncurses.cpp */; };
+		06B8AA52190CE35400DC76FE /* libncurses.5.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 06B8AA51190CE35400DC76FE /* libncurses.5.4.dylib */; };
+		06B8AA55190CE35B00DC76FE /* libncurses.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 06B8AA53190CE35B00DC76FE /* libncurses.5.dylib */; };
+		06B8AA56190CE35B00DC76FE /* libncurses.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 06B8AA54190CE35B00DC76FE /* libncurses.dylib */; };
 		06D8795D1905920500E3E1B3 /* ScanFillSnake.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0653A8571904CEBB00D272EA /* ScanFillSnake.txt */; };
 		06D8795E1905920600E3E1B3 /* GoRight.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06D879571904F05E00E3E1B3 /* GoRight.txt */; };
 		06D879631905A5BF00E3E1B3 /* EdgeWalk.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 06D879611905A5B400E3E1B3 /* EdgeWalk.txt */; };
@@ -37,6 +41,10 @@
 		0653A84019031A7C00D272EA /* SimSnake.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimSnake.cpp; sourceTree = "<group>"; };
 		0653A84219031B1600D272EA /* SimSnake.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimSnake.h; sourceTree = "<group>"; };
 		0653A8571904CEBB00D272EA /* ScanFillSnake.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ScanFillSnake.txt; path = SimSnake/ScanFillSnake.txt; sourceTree = "<group>"; };
+		06B8AA4E190CE1A600DC76FE /* ncurses.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ncurses.cpp; sourceTree = "<group>"; };
+		06B8AA51190CE35400DC76FE /* libncurses.5.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libncurses.5.4.dylib; path = usr/lib/libncurses.5.4.dylib; sourceTree = SDKROOT; };
+		06B8AA53190CE35B00DC76FE /* libncurses.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libncurses.5.dylib; path = usr/lib/libncurses.5.dylib; sourceTree = SDKROOT; };
+		06B8AA54190CE35B00DC76FE /* libncurses.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libncurses.dylib; path = usr/lib/libncurses.dylib; sourceTree = SDKROOT; };
 		06D879571904F05E00E3E1B3 /* GoRight.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = GoRight.txt; path = SimSnake/GoRight.txt; sourceTree = "<group>"; };
 		06D879611905A5B400E3E1B3 /* EdgeWalk.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = EdgeWalk.txt; path = SimSnake/EdgeWalk.txt; sourceTree = "<group>"; };
 		06D879621905A5B400E3E1B3 /* LeftRightCycle.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LeftRightCycle.txt; path = SimSnake/LeftRightCycle.txt; sourceTree = "<group>"; };
@@ -47,6 +55,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06B8AA55190CE35B00DC76FE /* libncurses.5.dylib in Frameworks */,
+				06B8AA56190CE35B00DC76FE /* libncurses.dylib in Frameworks */,
+				06B8AA52190CE35400DC76FE /* libncurses.5.4.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +67,9 @@
 		0653A82B19031A6300D272EA = {
 			isa = PBXGroup;
 			children = (
+				06B8AA53190CE35B00DC76FE /* libncurses.5.dylib */,
+				06B8AA54190CE35B00DC76FE /* libncurses.dylib */,
+				06B8AA51190CE35400DC76FE /* libncurses.5.4.dylib */,
 				06D879581904F08500E3E1B3 /* Snakes */,
 				0653A83619031A6300D272EA /* SimSnake */,
 				0653A83519031A6300D272EA /* Products */,
@@ -76,6 +90,7 @@
 				0653A83719031A6300D272EA /* main.cpp */,
 				0653A84019031A7C00D272EA /* SimSnake.cpp */,
 				0653A84219031B1600D272EA /* SimSnake.h */,
+				06B8AA4E190CE1A600DC76FE /* ncurses.cpp */,
 			);
 			path = SimSnake;
 			sourceTree = "<group>";
@@ -143,6 +158,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0653A84119031A7C00D272EA /* SimSnake.cpp in Sources */,
+				06B8AA50190CE1A600DC76FE /* ncurses.cpp in Sources */,
 				0653A83819031A6300D272EA /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
